@@ -158,6 +158,7 @@ public:
 		{
 			if (m_SelectedTile == this)
 			{
+				changeOwner(1);
 				resetColor();
 				m_SelectedTile = NULL;
 			}
@@ -165,14 +166,17 @@ public:
 			{
 				m_SelectedTile->resetColor();
 				m_SelectedTile = this;
+				changeOwner(1);
 				selectColor();
 			}
 		}
 		else
 		{
 			m_SelectedTile = this;
+			changeOwner(1);
 			selectColor();
 		}
+
 	}
 
 	static void setRadius(uint16_t p_Radius) { m_Radius = p_Radius; }

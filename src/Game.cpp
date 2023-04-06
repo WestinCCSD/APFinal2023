@@ -91,6 +91,10 @@ void Game::getWindowSize(int* dstX, int* dstY)
 void Game::renderAll()
 {
 	// draw stuff
+	for (auto& object : m_Objects)
+	{
+		object->Render();
+	}
 	SDL_RenderPresent(m_Renderer);
 }
 

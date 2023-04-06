@@ -3,6 +3,7 @@
 #include <vector>
 #include <string>
 #include "GameObject.h"
+#include "SDL_ttf.h"
 
 // a UI object is an element, or collection of elements, that can be rendered
 // and is interactable (buttons, sliders, text, etc.)
@@ -11,7 +12,8 @@ class UI : public GameObject
 public:
 
 	// exists as de facto constructor so copy pasting isn't necessary for inherited classes
-	void init(int px, int py, int pw, int ph, const char* p_TexturePath, const std::vector<UI>& p_Children)
+	// data can be anything, usually used for additional parameters in child classes
+	virtual void init(int px, int py, int pw, int ph, const char* p_TexturePath, const std::vector<UI>& p_Children, void* p_Data)
 	{
 		w = pw;
 		h = ph;
@@ -126,7 +128,7 @@ namespace UITypes
 	class Button : public UI
 	{
 	public:
-		bool clickCheck()
+		virtual bool clickCheck()
 		{
 			int lx = 0, ly = 0;
 			auto mask = SDL_GetMouseState(&lx, &ly);
@@ -182,16 +184,105 @@ namespace UITypes
 	class Slider : public Button
 	{
 	public:
-		
+		// data should contain an array of 2 ints, one for leftmost position of slider
+		// one for rightmost position of slider. These points are in global space;
+		// they are NOT relative to the slider's position!
+		virtual void init(int px, int py, int pw, int ph, const char* p_TexturePath, const std::vector<UI>& p_Children, void* p_Data) override
+		{
+			w = pw;
+			h = ph;
+			x = px;
+			y = py;
+			m_Texture = Renderer::loadTexture(p_TexturePath);
 
-		virtual void valueChanged() {}
+			int* sliderParams = (int*)p_Data; // cast p_Data into int pointer
+			m_SliderX1 = sliderParams[0];
+			m_SliderX2 = sliderParams[1];
 
+			setSliderSprite("assets/art/defaultsliderback.png");
+
+			// there is probably a better way of doing this...
+			// but for such a small project it's no big deal
+			m_Children.reserve(p_Children.size());
+			for (int i = 0; i < p_Children.size(); i++)
+			{
+				m_Children.emplace_back(p_Children[i]);
+			}
+			clampPostion();
+		}
+
+		virtual void UIHandle(float) override
+		{
+			bool prev = m_mouseDown;
+			m_mouseDown = false;
+			if (clickCheck())
+			{
+				int prevx = x;
+				SDL_GetMouseState(&x, NULL);
+				x -= (w / 2); // adjust position
+				clampPostion();
+				if (x != prevx)
+				{
+					int absx = x - m_SliderX1, abssldrx = m_SliderX2 - m_SliderX1;
+					// ^^ normalize slider positions to calculate progress
+					m_Progress = float(absx) / float(abssldrx);
+					valueChanged();
+				}
+			}
+			m_mouseDown = prev;
+
+		}
+
+		virtual void UIRender() override
+		{
+			SDL_Rect rect = TORECT;
+			SDL_Rect sliderrect = { m_SliderX1, y, (m_SliderX2 - m_SliderX1) + w, h };
+
+			SDL_RenderCopy(Renderer::getRenderer(), m_SliderSprite, NULL, &sliderrect);
+			SDL_RenderCopy(Renderer::getRenderer(), m_Texture, NULL, &rect);
+		}
+
+		virtual void valueChanged() 
+		{
+			std::cout << m_Progress << "\n";
+		}
+
+		void setSliderSprite(const char* p_Path)
+		{
+			m_SliderSprite = Renderer::loadTexture(p_Path);
+		}
+
+		// set the bounds of the slider
+		void setSliderBounds(int px1, int px2)
+		{
+			m_SliderX1 = px1;
+			m_SliderX2 = px2;
+		}
 
 	protected:
-		int m_SliderX, m_SliderY;
+		void clampPostion()
+		{
+			x = clamp<int>(m_SliderX1, m_SliderX2, x);
+		}
+
+		// the left most point & right most point of this slider
+		int m_SliderX1, m_SliderX2;
 		float m_Progress = 0.f;
 
 		SDL_Texture* m_SliderSprite;
 
 	};
+
+	class Label : public UI
+	{
+	public:
+
+
+
+	protected:
+
+
+
+	};
+
 }

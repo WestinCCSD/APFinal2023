@@ -9,17 +9,23 @@ int main(int argc, char** args) {
 	const Countries& country = Countries::get();
 	World world(50, 50, 70);
 
-	UITypes::Button button;
-	button.init(0, 0, 50, 50, "assets/art/testbutton.png", {});
-	
-	game.linkObject(&button);
+	int sliderData[2] = 
+	{
+		500, 501
+	};
+
+	Countries::addCountry(Country({ 255, 0, 0, 255 }, "Player", 0), true);
+
+	UITypes::Slider slider;
+	slider.init(0, 640, 96, 96, "assets/art/defaultslider.png", {}, sliderData);
+
+	game.linkObject(&slider);
 
 	while (game.isRunning())
 	{
 		game.renderClear();
 		game.handleEvents(&world);
 		world.Render();
-		button.Render();
 		game.renderAll();
 	}
 
