@@ -3,6 +3,7 @@
 #include "Debug.h"
 #include "Camera.h"
 #include "World.h"
+#include "UI.h"
 
 Game::Game() 
 {
@@ -33,6 +34,7 @@ Game::Game()
 void Game::handleEvents(void* p_World)
 {
 	World* world = static_cast<World*>(p_World);
+
 	while (SDL_PollEvent(&m_Event))
 	{
 		if (m_Event.type == SDL_QUIT) 
@@ -46,6 +48,11 @@ void Game::handleEvents(void* p_World)
 			// do click checks or smth idk
 			world->onClick(x, y);
 		}
+	}
+
+	for (auto& object : m_Objects)
+	{
+		object->Handle(0.f);
 	}
 
 	auto key = SDL_GetKeyboardState(NULL);
@@ -85,4 +92,14 @@ void Game::renderAll()
 {
 	// draw stuff
 	SDL_RenderPresent(m_Renderer);
+}
+
+void Game::linkObject(GameObject* p_Obj)
+{
+	m_Objects.push_back(p_Obj);
+}
+
+void Game::unlinkObject(GameObject* p_Obj)
+{
+	
 }

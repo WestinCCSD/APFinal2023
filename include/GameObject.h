@@ -7,7 +7,7 @@
 #define TORECT SDL_Rect{x, y, w, h}
 // quickly transforms an object by the camera's position
 #define TRANSCAM(r) r.x -= Camera::getX();\
-					   rect.y -= Camera::getY()
+					   r.y -= Camera::getY()
 // base class for everything that renders and has logic
 class GameObject {
 public:
@@ -19,9 +19,26 @@ public:
 
 	virtual void Handle(float p_Delta) {}
 
+	void setIndex(uint8_t p_Index)
+	{
+		m_Index = p_Index;
+	}
+
+	uint8_t getIndex() { return m_Index; }
+
+	template<typename T>
+	T clamp(T min, T max, T value)
+	{
+		if (value < min)
+			value = min;
+		if (value > max)
+			value = max;
+		return value;
+	}
+
 protected:
 
 	int x, y, w, h;
 	SDL_Texture* m_Texture;
-
+	uint8_t m_Index;
 };

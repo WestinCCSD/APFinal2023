@@ -1,9 +1,12 @@
 #pragma once
 #include <iostream>
+#include <deque>
+
 #include <SDL.h>
 #include <SDL_image.h>
 #include <SDL_ttf.h>
 
+#include "GameObject.h"
 
 class Game {
 public:
@@ -19,10 +22,15 @@ public:
 	void renderAll();
 	void renderClear();
 
-	bool is_running() { return running; }
+	bool isRunning() { return running; }
 	void getWindowSize(int* dstX, int* dstY);
 
+	void linkObject(GameObject*);
+	void unlinkObject(GameObject*);
+
 private:
+	std::deque<GameObject*> m_Objects;
+
 	SDL_Window* m_Window;
 	SDL_Renderer* m_Renderer;
 	SDL_Event m_Event{};

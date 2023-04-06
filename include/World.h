@@ -3,7 +3,6 @@
 #include <vector>
 #include "Tile.h"
 
-
 // stores data for the world
 class World : public GameObject {
 public:

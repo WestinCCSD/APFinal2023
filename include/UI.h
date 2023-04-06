@@ -1,4 +1,5 @@
 #pragma once
+#include <iostream>
 #include <vector>
 #include <string>
 #include "GameObject.h"
@@ -8,27 +9,15 @@
 class UI : public GameObject
 {
 public:
-	
-	UI(int* rect, const char* p_TexturePath, const std::vector<UI>& p_Children)
-	{
-		w = rect[2];
-		h = rect[3];
-		init(rect[0], rect[1], p_TexturePath, p_Children);
-	}
-	UI(int px, int py, int pw, int ph, const char* p_TexturePath, const std::vector<UI>& p_Children)
+
+	// exists as de facto constructor so copy pasting isn't necessary for inherited classes
+	void init(int px, int py, int pw, int ph, const char* p_TexturePath, const std::vector<UI>& p_Children)
 	{
 		w = pw;
 		h = ph;
-		init(px, py, p_TexturePath, p_Children);
-	}
-
-	// exists as de facto constructor so copy pasting isn't necessary for inherited classes
-	void init(int px, int py, const char* p_TexturePath, const std::vector<UI>& p_Children)
-	{
 		x = px;
 		y = py;
 		m_Texture = Renderer::loadTexture(p_TexturePath);
-		SDLVERIFY(m_Texture);
 
 		// there is probably a better way of doing this...
 		// but for such a small project it's no big deal
@@ -74,7 +63,7 @@ public:
 		y = py;
 
 	}
-
+	
 	void moveFamily(int px, int py)
 	{
 		for (auto& child : m_Children)
@@ -132,7 +121,77 @@ protected:
 
 };
 
-class Slider : public UI
+namespace UITypes
 {
+	class Button : public UI
+	{
+	public:
+		bool clickCheck()
+		{
+			int lx = 0, ly = 0;
+			auto mask = SDL_GetMouseState(&lx, &ly);
+			if (mask == 1)
+			{
+				if (!m_mouseDown)
+				{
+					SDL_Point point{ lx, ly };
+					SDL_Rect rect = TORECT;
+					m_mouseDown = true;
+					return SDL_PointInRect(&point, &rect);
+				}
+			}
+			else
+			{
+				m_mouseDown = false;
+			}
+			return false;
+		}
+		
+		// can be overriden for children classes, but make sure to call "clickCheck"
+		// (though this is not reccomended)
+		void UIHandle(float) override
+		{
+			if (clickCheck())
+			{
+				onClick();
+			}
+		}
 
-};
+		void forceClick(int px, int py)
+		{
+			SDL_Point point{ px, py };
+			SDL_Rect rect = TORECT;
+
+			if (SDL_PointInRect(&point, &rect))
+			{
+				onClick();
+			}
+
+		}
+
+		virtual void onClick() 
+		{
+			std::cout << "Button clicked!\n";
+		}
+
+	protected:
+		static bool m_mouseDown;
+
+	};
+
+	class Slider : public Button
+	{
+	public:
+		
+
+		virtual void valueChanged() {}
+
+
+	protected:
+		int m_SliderX, m_SliderY;
+		float m_Progress = 0.f;
+
+		SDL_Texture* m_SliderSprite;
+
+	};
+}
