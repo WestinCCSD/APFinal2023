@@ -23,10 +23,16 @@ public:
 
 		int totalwidth = 22 * 5;
 
+		int ww;
+		int wh;
+
+		Renderer::getWindowProperties(&ww, &wh);
+
 		for (int i = 0; i < 5; i++)
 		{
 			m_DayUI[i] = UI();
-			m_DayUI[i].init((i * 22) + 2560 - totalwidth - 60, 33, 22, 22, "assets/art/dayui.png", {}, NULL);
+			m_DayUI[i].init((i * 22) + ww - totalwidth - 60, 33, 22, 22, "assets/art/dayui.png", {}, NULL);
+			//m_DayUI[i].init(0, 33, 22, 22, "assets/art/dayui.png", {}, NULL);
 			// we immediately free texture
 			m_DayUI[i].freeTexture();
 			// then pass in the new one
@@ -34,10 +40,10 @@ public:
 		}
 
 		m_Date.init(0, 11, 0, 0, OFFICIALFONT, {}, "Day 0");
-		m_Date.setCenter(2560 - (totalwidth / 2) - 60, -1);
+		m_Date.setCenter(ww - (totalwidth / 2) - 60, -1);
 		m_Date.setFont(m_Date.loadFont(OFFICIALFONT, 18));
 
-		m_PauseIcon.init(2560 - totalwidth - 22 - 60, 33, 22, 22, "assets/art/play.png", {}, NULL);
+		m_PauseIcon.init(ww - totalwidth - 22 - 60, 33, 22, 22, "assets/art/play.png", {}, NULL);
 		m_PauseIcon.freeTexture();
 		m_PauseIcon.setTexture(m_Play);
 

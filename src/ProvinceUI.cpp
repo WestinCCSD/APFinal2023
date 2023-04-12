@@ -14,31 +14,33 @@ ClaimButton<ProvinceUI>* ProvinceUI::m_ClaimButton = NULL;
 Tooltip* ProvinceUI::m_Tooltip = NULL;
 																	
 ProvinceUI::ProvinceUI()											
-{																	
-	baseInit(48, 1080, 384, 288, {});								
+{			
+	int wh=0;
+	Renderer::getWindowProperties(NULL, &wh);
+	baseInit(48, wh - 400, 384, 288, {});								
 																	
 	m_PopulationLabel = new UITypes::Label();						
-	m_PopulationLabel->init(0, 1239, 0, 0, OFFICIALFONT, {}, "0.0");
+	m_PopulationLabel->init(0, y + 159, 0, 0, OFFICIALFONT, {}, "0.0");
 	m_PopulationLabel->setCenter(155, -1); // center of box on sprite
 
 	m_PopulationText = new UITypes::Label();
-	m_PopulationText->init(0, 1239, 0, 0, OFFICIALFONT, {}, "Population");
+	m_PopulationText->init(0, y + 159, 0, 0, OFFICIALFONT, {}, "Population");
 	m_PopulationText->setCenter(325, -1);
 
 	m_YieldLabel = new UITypes::Label();
-	m_YieldLabel->init(0, 1305, 0, 0, OFFICIALFONT, {}, "0");
+	m_YieldLabel->init(0, y + 225, 0, 0, OFFICIALFONT, {}, "0");
 	m_YieldLabel->setCenter(155, -1);
 
 	m_YieldName = new UITypes::Label();
-	m_YieldName->init(0, 1305, 0, 0, OFFICIALFONT, {}, "Resource Name");
+	m_YieldName->init(0, y + 225, 0, 0, OFFICIALFONT, {}, "Resource Name");
 	m_YieldName->setCenter(325, -1);
 
 	m_TileNameLabel = new UITypes::Label();
-	m_TileNameLabel->init(0, 1109, 0, 0, OFFICIALFONT, {}, "Tile ");
+	m_TileNameLabel->init(0, y + 29, 0, 0, OFFICIALFONT, {}, "Tile ");
 	m_TileNameLabel->setCenter(245, -1);
 
 	m_ClaimButton = new ClaimButton<ProvinceUI>((*this));
-	m_ClaimButton->init(314, 1181, 60, 30, "assets/art/claimbutton.png", {}, NULL);
+	m_ClaimButton->init(314, y + 101, 60, 30, "assets/art/claimbutton.png", {}, NULL);
 
 
 	m_Texture = Renderer::loadTexture("assets/art/povinceUI.png");	

@@ -27,9 +27,10 @@ Game::Game()
 	SDLVERIFY(m_Renderer);
 	SDL_SetRenderDrawColor(m_Renderer, 25, 95, 240, 255);
 
-	
+	(void)Renderer::get(); // init renderer
 
 	Renderer::setRenderer(m_Renderer);
+	Renderer::setWindowProperties(m_windowWidth, m_windowHeight);
 
 	running = true;
 }
