@@ -54,7 +54,7 @@
     <ClInclude Include="include\DeveloperUI.h" />
   </ItemGroup>
   <ItemGroup>
-    <Image Include="include\ResearchUI.png" />
+    <Image Include="assets\art\ResearchUI.png" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>

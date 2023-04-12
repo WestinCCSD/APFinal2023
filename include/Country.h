@@ -1,21 +1,23 @@
 #pragma once
+#include <SDL_mixer.h>
 #include <vector>
 #include <deque>
 #include <SDL_rect.h>
 #include <string>
 #include "Resource.h"
+#include "Timer.h"
 
 class Country
 {
 public:
 	Country(const SDL_Color& p_BorderColor, const std::string& p_CountryName, uint8_t p_CountryTag, float p_Bonus)
-		: m_BorderColor(p_BorderColor), m_CountryName(p_CountryName), m_CountryTag(p_CountryTag), m_PopulationBonus(p_Bonus)
+		: m_BorderColor(p_BorderColor), m_CountryName(p_CountryName), m_CountryTag(p_CountryTag), m_PopulationBonus(p_Bonus), m_SoundTimer(TimerComponent<Country>((*this)))
 	{
 		initStockpile();
 	}
 	Country(const Country& p_Country)
 		: m_BorderColor(p_Country.m_BorderColor), m_CountryName(p_Country.m_CountryName), m_CountryTag(p_Country.m_CountryTag), m_PopulationBonus(p_Country.m_PopulationBonus),
-		  m_ManpowerPercent(p_Country.m_ManpowerPercent), m_Tiles(p_Country.m_Tiles)
+		  m_ManpowerPercent(p_Country.m_ManpowerPercent), m_Tiles(p_Country.m_Tiles), m_SoundTimer(TimerComponent<Country>((*this)))
 	{
 		initStockpile();
 	}
@@ -41,6 +43,8 @@ public:
 	float m_PopulationBonus;
 
 	void calculateYield();
+
+	uint32_t onTimeout(Timer* timer) { return 0; }
 
 private:
 	SDL_Color m_BorderColor; // yep
@@ -69,6 +73,9 @@ private:
 	uint32_t m_FoodStockpile{ 0 };
 
 	void initStockpile();
+
+	TimerComponent<Country> m_SoundTimer;
+	static Mix_Chunk* m_GainedProvince;
 
 public:
 	// 0 : iron

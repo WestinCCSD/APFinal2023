@@ -1,6 +1,7 @@
 #pragma once
 #include "UI.h"
 #include "Country.h"
+#include "Timer.h"
 
 class Player : public GameObject
 {
@@ -10,6 +11,8 @@ public:
 	void Handle(float) override;
 	// although player itself does not draw anything, it does have its own UI
 	void Render() override;
+
+	uint32_t onTimeout();
 
 private:
 	Country* m_Country;
@@ -23,5 +26,7 @@ private:
 	UITypes::Label* m_MoneyLabel;
 
 	uint32_t m_PrevStockpile{ 0 };
+
+
 
 };

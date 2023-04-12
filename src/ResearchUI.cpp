@@ -23,5 +23,5 @@ void ResearchUI::Handle(float d)
 
 void ResearchUI::UIHandle(float)
 {
-	m_ResearchButton.UIHandle(0.f);
+	//m_ResearchButton.UIHandle(0.f);
 }

@@ -112,7 +112,7 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <Image Include="include\ResearchUI.png">
+    <Image Include="assets\art\ResearchUI.png">
       <Filter>Resource Files</Filter>
     </Image>
   </ItemGroup>

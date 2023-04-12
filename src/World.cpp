@@ -8,6 +8,7 @@ uint16_t Tile::m_MultLength = 0;
 uint16_t Tile::m_Radius = 0;
 Tile* Tile::m_SelectedTile = NULL;
 Mix_Chunk* Tile::m_TileClick = NULL;
+Mix_Chunk* Tile::m_ClaimSound = NULL;
 RNG Tile::rng = RNG();
 
 World::World(uint16_t p_SizeX, uint16_t p_SizeY, uint16_t p_CellLength)
@@ -48,6 +49,7 @@ World::World(uint16_t p_SizeX, uint16_t p_SizeY, uint16_t p_CellLength)
 	}
 
 	Tile::m_TileClick = Mix_LoadWAV("assets/sfx/province_own_click.wav");
+	Tile::m_ClaimSound = Mix_LoadWAV("assets/sfx/province_core.wav");
 
 	m_TickTimer.Start(-1);
 

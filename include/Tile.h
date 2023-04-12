@@ -60,6 +60,9 @@ public:
 
 		m_Population /= (m_TerrainType + 1);
 		calculateYield();
+
+		m_ClaimProgress *= (m_TerrainType + 1);
+
 	}
 
 	void Render() override
@@ -134,6 +137,10 @@ public:
 
 		country.addTile(this);
 
+	}
+	void createClaim(uint8_t p_Country)
+	{
+		m_CountryClaim = p_Country;
 	}
 
 	static void setMultLength(uint16_t p_MultLength)
@@ -216,9 +223,16 @@ public:
 	// (like 1 turn in hoi4 or civ5)
 	void Tick()
 	{
+		if (m_CountryClaim != 0)
+		{
+			m_ClaimProgress--;
+			if (m_ClaimProgress > 0)
+			{
+				changeOwner(m_CountryClaim);
+			}
+		}
 		calculateYield();
 		calculateNeeds();
-
 	}
 
 	bool isHungry() { return m_Hungry; }
@@ -232,11 +246,14 @@ public:
 	const SDL_Color& getColor() { return m_ColorMod; }
 	static Tile* getSelectedTile() { return m_SelectedTile; }
 	static Mix_Chunk* m_TileClick;
+	static Mix_Chunk* m_ClaimSound;
 
 private:
 	SDL_Color m_ColorMod{255, 255, 255, 255};
 	int m_ID; // special id for this tile bc pointer checking is ineffective
 	uint16_t m_Index; // used for locating this tile in a vector/deque
+
+	int m_ClaimProgress{ 80 }; // time in days to claim this province
 
 	static SDL_Texture* m_TileTexture;
 	static uint16_t m_MultLength;
@@ -252,8 +269,10 @@ private:
 	// duh
 	TerrainType m_TerrainType = TerrainType::Flat;
 	uint8_t m_Country = 0; // 0 = Unowned
+	uint8_t m_CountryClaim = 0; // 0 = Unowned
 	Resource* m_Resource = NULL; // the resource this tile yields
 	uint32_t m_ResourceYield = 0; // weekly resource yield
+
 
 	// increase population by this formula
 	// where p = current population; t = terrain type

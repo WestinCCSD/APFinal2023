@@ -8,11 +8,9 @@ int main(int argc, char** args) {
 	Game game = Game();
 	const Countries& countries = Countries::get();
 	World world(50, 50, 70);
-	game.linkObject(&world);
 	Player player;
+	game.linkObject(&world);
 	game.linkObject(&player);
-	ResearchUI researchui;
-	game.linkObject(&researchui);
 
 
 	while (game.isRunning())
@@ -21,7 +19,6 @@ int main(int argc, char** args) {
 		game.handleEvents(&world);
 		game.renderAll();
 		ProvinceUI::ProvinceUIHandle();
-		researchui.Render();
 		game.renderPresent();
 	}
 

@@ -2,6 +2,8 @@
 #include "Country.h"
 #include "Tile.h"
 
+Mix_Chunk* Country::m_GainedProvince = Mix_LoadWAV("assets/sfx/province_core.wav");
+
 void Country::initStockpile()
 {
 	m_Stockpile.reserve(4);

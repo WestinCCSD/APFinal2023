@@ -85,3 +85,8 @@ void Player::Render()
 	m_TreausuryBase->UIRender();
 	m_MoneyLabel->UIRender();
 }
+
+uint32_t Player::onTimeout()
+{
+	return 0;
+}

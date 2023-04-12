@@ -21,11 +21,15 @@ public:
 	
 	uint32_t getWaitTime() { return m_WaitTime; }
 
+	bool isStopped() { return m_Stopped; }
+
 protected:
 	SDL_TimerID m_ID = 0;
 	uint32_t m_WaitTime = 1000;
 	uint32_t m_StartTicks = 0;
 	uint32_t m_RemainingTicks = 0;
+
+	bool m_Stopped = true;
 
 };
 

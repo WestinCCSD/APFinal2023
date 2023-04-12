@@ -4,6 +4,7 @@ void Timer::Stop()
 {
 	m_RemainingTicks = SDL_GetTicks() - m_StartTicks;
 	SDL_RemoveTimer(m_ID);
+	m_Stopped = true;
 }
 
 void Timer::Start(uint32_t p_Time)
@@ -15,6 +16,7 @@ void Timer::Start(uint32_t p_Time)
 		callback,
 		this
 	);
+	m_Stopped = false;
 }
 
 void Timer::Resume()
