@@ -5,6 +5,8 @@
 #include <SDL.h>
 #include <SDL_image.h>
 #include <SDL_ttf.h>
+#include <SDL_mixer.h>
+
 
 #include "GameObject.h"
 
@@ -15,10 +17,13 @@ public:
 	~Game() {
 		SDL_DestroyWindow(m_Window);
 		SDL_DestroyRenderer(m_Renderer);
+		IMG_Quit();
+		TTF_Quit();
 		SDL_Quit();
 	}
 
 	void handleEvents(void* p_World);
+	void renderPresent();
 	void renderAll();
 	void renderClear();
 

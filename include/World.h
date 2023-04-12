@@ -1,7 +1,10 @@
 #pragma once
 #include <iostream>
 #include <vector>
+#include <SDL_mixer.h>
 #include "Tile.h"
+#include "Timer.h"
+#include "Calendar.h"
 
 // stores data for the world
 class World : public GameObject {
@@ -14,17 +17,20 @@ public:
 		{
 			tile.Render();
 		}
+		m_Calendar.Render();
+		m_MusicSlider.Render();
+		m_VolumeIcon.Render();
 	}
 
-	void Handle(float p_Delta) override
-	{
-		for (auto& tile : m_Tilemap)
-		{
-			tile.Handle(p_Delta);
-		}
-	}
+	void Handle(float p_Delta) override;
 
 	void onClick(int px, int py);
+
+	void Pause();
+	void dayTick();
+	void weekTick();
+	void yearTick();
+	uint32_t onTimeout(Timer*);
 
 private:
 	std::vector<Tile> m_Tilemap;
@@ -32,9 +38,22 @@ private:
 	uint8_t m_CellLength;
 	uint16_t m_SizeX, m_SizeY, m_Total;
 
+	bool m_Paused = false;
+
+	TimerComponent<World> m_TickTimer;
+	Calendar<World> m_Calendar;
+
+	UITypes::Slider m_MusicSlider;
+	UI m_VolumeIcon;
+
 	inline bool isEven(const uint64_t& p_Value)
 	{
 		return ((p_Value % 2) == 0);
 	}
+	
+	RNG rng{};
+	Mix_Music* m_Music[22];
+
+	
 
 };

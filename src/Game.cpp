@@ -10,6 +10,8 @@ Game::Game()
 	SDLCall(SDL_Init(SDL_INIT_EVERYTHING));
 	EXCPTCall(IMG_Init(IMG_INIT_PNG), IMG_INIT_PNG);
 	SDLCall(TTF_Init());
+	EXCPTCall(Mix_Init(MIX_INIT_MP3), MIX_INIT_MP3);
+	SDLCall(Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 4096));
 
 	{
 		SDL_DisplayMode displaymode;
@@ -24,6 +26,8 @@ Game::Game()
 	m_Renderer = SDL_CreateRenderer(m_Window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
 	SDLVERIFY(m_Renderer);
 	SDL_SetRenderDrawColor(m_Renderer, 25, 95, 240, 255);
+
+	
 
 	Renderer::setRenderer(m_Renderer);
 
@@ -47,6 +51,14 @@ void Game::handleEvents(void* p_World)
 			SDL_GetMouseState(&x, &y);
 			// do click checks or smth idk
 			world->onClick(x, y);
+		}
+		if (m_Event.type == SDL_KEYDOWN)
+		{
+			auto key = m_Event.key.keysym.sym;
+			if (key == SDLK_SPACE)
+			{
+				world->Pause();
+			}
 		}
 	}
 
@@ -95,6 +107,10 @@ void Game::renderAll()
 	{
 		object->Render();
 	}
+}
+
+void Game::renderPresent()
+{
 	SDL_RenderPresent(m_Renderer);
 }
 

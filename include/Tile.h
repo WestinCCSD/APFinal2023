@@ -1,7 +1,9 @@
 #pragma once
+#include <SDL_mixer.h>
 #include "GameObject.h"
 #include "Country.h"
 #include "RNG.h"
+#include "Resource.h"
 
 // for convenience
 #define R m_ColorMod.r
@@ -56,6 +58,8 @@ public:
 		const auto& country = Countries::getCountry(m_Country);
 		setColor(country.getBorderColor());
 
+		m_Population /= (m_TerrainType + 1);
+		calculateYield();
 	}
 
 	void Render() override
@@ -66,7 +70,7 @@ public:
 
 		SDLCall(SDL_SetTextureColorMod(m_TileTexture, R, G, B));
 		SDLCall(SDL_SetTextureAlphaMod(m_TileTexture, A));
-		
+
 		SDLCall(SDL_RenderCopy(Renderer::getRenderer(), m_TileTexture, NULL, &rect));
 		if (m_TerrainType != 0)
 			SDL_RenderCopy(Renderer::getRenderer(), TerrainTextures::terrainTextures[m_TerrainType - 1], NULL, &rect); // terrain type is subtracted by 1 because terrain texture 1 = terrain type 0 :)
@@ -90,7 +94,7 @@ public:
 		return sqrt(ax + ay);
 	}
 
-	void setColor(const SDL_Color& color) 
+	void setColor(const SDL_Color& color)
 	{
 		m_ColorMod.r = color.r;
 		m_ColorMod.g = color.g;
@@ -112,9 +116,14 @@ public:
 
 	void changeOwner(uint8_t p_Country)
 	{
+		{
+			auto& formercountry = Countries::getCountry(m_Country);
+			formercountry.removeTile(this);
+		}
+
 		auto& country = Countries::getCountry(p_Country);
 		m_Country = country.getCountryTag();
-		if (m_SelectedTile == this) 
+		if (m_SelectedTile == this)
 		{
 			selectColor();
 		}
@@ -122,6 +131,9 @@ public:
 		{
 			resetColor();
 		}
+
+		country.addTile(this);
+
 	}
 
 	static void setMultLength(uint16_t p_MultLength)
@@ -136,7 +148,7 @@ public:
 
 	void resetColor()
 	{
-		auto& country = Countries::getCountry(m_Country);
+		auto country = Countries::getCountry(m_Country);
 		setColor(country.getBorderColor());
 	}
 
@@ -158,34 +170,73 @@ public:
 		{
 			if (m_SelectedTile == this)
 			{
-				changeOwner(1);
 				resetColor();
 				m_SelectedTile = NULL;
 			}
-			else 
+			else
 			{
 				m_SelectedTile->resetColor();
 				m_SelectedTile = this;
-				changeOwner(1);
 				selectColor();
+				Mix_PlayChannel(-1, m_TileClick, 0);
 			}
 		}
 		else
 		{
 			m_SelectedTile = this;
-			changeOwner(1);
 			selectColor();
+			Mix_PlayChannel(-1, m_TileClick, 0);
 		}
+	}
+
+	// get stats related to this country
+	// 0 : population
+	// 1 : terrain type
+	// 2 : country id
+	// 3 : tile id
+	// 4 : resource info
+	// 5 : resource yield
+	std::vector<int> getStats()
+	{
+		std::vector<int> gameStats =
+		{
+			m_Population,
+			m_TerrainType,
+			m_Country,
+			m_ID,
+			int(m_ResourceYield)
+		};
+		return gameStats;
+	}
+
+	uint32_t getYield() { return m_ResourceYield; }
+
+	// functions similar to handle,
+	// however this is only called during world updates
+	// (like 1 turn in hoi4 or civ5)
+	void Tick()
+	{
+		calculateYield();
+		calculateNeeds();
 
 	}
 
+	bool isHungry() { return m_Hungry; }
+	int getPopulation() { return m_Population; }
+	const Resource& getResource() { return (*m_Resource); }
+	uint16_t getCIndex() { return m_Index; } // get country index
+	
+	void setCIndex(uint16_t p_Index) { m_Index = p_Index; }
 	static void setRadius(uint16_t p_Radius) { m_Radius = p_Radius; }
 	static uint16_t getRadius() { return m_Radius; }
 	const SDL_Color& getColor() { return m_ColorMod; }
+	static Tile* getSelectedTile() { return m_SelectedTile; }
+	static Mix_Chunk* m_TileClick;
 
 private:
 	SDL_Color m_ColorMod{255, 255, 255, 255};
 	int m_ID; // special id for this tile bc pointer checking is ineffective
+	uint16_t m_Index; // used for locating this tile in a vector/deque
 
 	static SDL_Texture* m_TileTexture;
 	static uint16_t m_MultLength;
@@ -197,9 +248,104 @@ private:
 
 	// default population = 500
 	int m_Population = 500;
+	bool m_Hungry = false;
 	// duh
 	TerrainType m_TerrainType = TerrainType::Flat;
 	uint8_t m_Country = 0; // 0 = Unowned
+	Resource* m_Resource = NULL; // the resource this tile yields
+	uint32_t m_ResourceYield = 0; // weekly resource yield
 
+	// increase population by this formula
+	// where p = current population; t = terrain type
+	// 
+	// 5 + (p * 0% ~ 15%)
+	// ------------------
+	//			t
+	// we use current population to create a sort of population ramp
+	void increasePopulation()
+	{
+		const int base = 5;
+		float percent = (rng.randFloat() * 0.05) + 0.01f; // random number between 0.01 ~ 0.05
+		auto& country = Countries::getCountry(m_Country);
+		float bonus = country.getPopulationBonus();
+		if (bonus < 0.f)
+		{
+			bonus = 0.f;
+			percent = 0.f;
+		}
+		int increment = floor(base + ( (double(percent) + double(bonus)) * m_Population));
+		increment /= int(m_TerrainType) + 2; 
+		m_Population += increment;
+
+	}
+	void decreasePopulation(int p_Deficit)
+	{
+		m_Population -= p_Deficit * 2;
+	}
+	void calculateYield()
+	{
+		if (m_Resource == NULL)
+		{
+			m_Resource = new Resource(ResourceTypes[rng.randRange(0, 4)]);
+		}
+
+		m_ResourceYield = floor(m_Population * 0.08);
+
+		m_ResourceYield = clamp<int>(0, 20000, m_ResourceYield);
+		m_ResourceYield /= m_TerrainType + 2;
+
+	}
+	void calculateNeeds()
+	{
+		int food = 60; // base food output
+		int pop = floor(float(m_Population - 100) * 0.08f);
+
+		if (m_Resource->m_Category == ResourceCategory::Food)
+		{
+			food += m_ResourceYield;
+		}
+
+		auto& country = Countries::getCountry(m_Country);
+
+		if (food >= pop)
+		{
+			// enough food :D (likely there's surplus
+			increasePopulation();
+			m_Hungry = false;
+
+			if (m_Resource->m_Category == ResourceCategory::Food && country.getCountryTag() != 0)
+			{
+				auto stockpile = country.getFoodStockpile();
+				uint32_t surplus = food - pop;
+				country.setFoodStockpile(stockpile + surplus);
+
+			}
+
+		}
+		else
+		{
+			// not enough food :'(
+			// try to get food from stockpile, if there's no food... hungers :(
+			int deficit = pop - food;
+			auto stockpile = country.getFoodStockpile();
+
+			if (stockpile >= deficit)
+			{
+				// there's enough food in stockpile :D
+				country.setFoodStockpile(stockpile - deficit);
+				increasePopulation();
+				m_Hungry = false;
+			}
+			else
+			{
+				// no food... hungers :(
+				decreasePopulation(deficit);
+				m_Hungry = true;
+			}
+			
+
+		}
+
+	}
 
 };

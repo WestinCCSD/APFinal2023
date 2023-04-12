@@ -24,6 +24,18 @@ public:
 		m_Index = p_Index;
 	}
 
+	void freeTexture()
+	{
+		SDL_DestroyTexture(m_Texture);
+	}
+
+	// setter for texture
+	// does not free texture, be absolutely sure to do this if necessary!
+	void setTexture(SDL_Texture * p_Texture)
+	{
+		m_Texture = p_Texture;
+	}
+
 	uint8_t getIndex() { return m_Index; }
 
 	template<typename T>

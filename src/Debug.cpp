@@ -18,7 +18,7 @@ bool Debug::SDLVerify(bool value, const char* file, int line)
 {
 	if (!value)
 	{
-		std::cout << "[SDL Error] (Resource failed validity check!): " << file << " : " << line << "More info is displayed below if possible\n";
+		std::cout << "[SDL Error] (Resource failed validity check!): " << file << " : " << line << " More info is displayed below if possible \n";
 		std::cout << SDL_GetError() << "\n";
 	}
 

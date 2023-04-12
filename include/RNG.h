@@ -47,4 +47,9 @@ public:
 		srand(time(NULL));
 	}
 
+	bool Roll(float p_SuccessChance)
+	{
+		return (randFloat() <= p_SuccessChance);
+	}
+
 };
