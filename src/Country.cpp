@@ -103,6 +103,7 @@ void Country::addTile(void* p_Tile)
 	Tile* tile = (Tile*)(p_Tile);
 	tile->setCIndex(m_Tiles.size());
 	m_Tiles.push_back(p_Tile);
+	Mix_PlayChannel(-1, m_GainedProvince, 0);
 }
 
 void Country::removeTile(void* p_Tile)

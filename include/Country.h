@@ -14,12 +14,14 @@ public:
 		: m_BorderColor(p_BorderColor), m_CountryName(p_CountryName), m_CountryTag(p_CountryTag), m_PopulationBonus(p_Bonus), m_SoundTimer(TimerComponent<Country>((*this)))
 	{
 		initStockpile();
+		m_GainedProvince = Mix_LoadWAV("assets/sfx/province_core.wav");
 	}
 	Country(const Country& p_Country)
 		: m_BorderColor(p_Country.m_BorderColor), m_CountryName(p_Country.m_CountryName), m_CountryTag(p_Country.m_CountryTag), m_PopulationBonus(p_Country.m_PopulationBonus),
 		  m_ManpowerPercent(p_Country.m_ManpowerPercent), m_Tiles(p_Country.m_Tiles), m_SoundTimer(TimerComponent<Country>((*this)))
 	{
 		initStockpile();
+		m_GainedProvince = Mix_LoadWAV("assets/sfx/province_core.wav");
 	}
 
 	void setBorderColor(const SDL_Color& p_BorderColor) { m_BorderColor = p_BorderColor; }
@@ -32,6 +34,20 @@ public:
 
 	void addTile(void* p_Tile);
 	void removeTile(void* p_Tile);
+	inline void addClaim()
+	{
+		m_ClaimCount++;
+		m_ClaimSpeed = (10.f / float(m_ClaimCount));
+	}
+	inline void removeClaim()
+	{
+		m_ClaimCount--;
+		if (m_ClaimCount > 0)
+			m_ClaimSpeed = (10.f / float(m_ClaimCount));
+		else
+			m_ClaimSpeed = 10.f;
+	}
+	float getClaimSpeed() { return m_ClaimSpeed; }
 
 	const SDL_Color& getBorderColor() const { return m_BorderColor; }
 	const std::string& getCountryName() const { return m_CountryName; }
@@ -69,6 +85,9 @@ private:
 
 	std::vector<ResourceStorage> m_Stockpile;
 	std::deque<void*> m_Tiles; // deque of pointers to tiles
+	
+	uint8_t m_ClaimCount{ 0 }; // count of how many tiles this country is attempting to claim
+	float m_ClaimSpeed{ 1.f }; // daily claim rate
 
 	uint32_t m_FoodStockpile{ 0 };
 

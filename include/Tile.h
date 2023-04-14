@@ -151,6 +151,8 @@ public:
 	}
 	void createClaim(uint8_t p_Country)
 	{
+		auto& countryclaim = Countries::getCountry(p_Country);
+		countryclaim.addClaim();
 		m_CountryClaim = p_Country;
 		m_Claimed = true;
 	}
@@ -235,10 +237,12 @@ public:
 	{
 		if (m_CountryClaim != 0 && m_CountryClaim != m_Country)
 		{
-			m_ClaimProgress--;
-			if (m_ClaimProgress == 0)
+			auto& claimedcountry = Countries::getCountry(m_CountryClaim);
+			m_ClaimProgress -= claimedcountry.getClaimSpeed();
+			if (m_ClaimProgress < 0.f)
 			{
 				queueChangeOwner(m_CountryClaim);
+				claimedcountry.removeClaim();
 			}
 		}
 	}
@@ -252,7 +256,7 @@ public:
 		calculateNeeds();
 	}
 
-	float getClaimProgress() { return (float(m_ClaimProgress) / float(m_ClaimBase)); }
+	float getClaimProgress() { return (float(m_ClaimBase - m_ClaimProgress) / float(m_ClaimBase)); }
 
 	bool isHungry() { return m_Hungry; }
 	int getPopulation() { return m_Population; }
@@ -290,11 +294,11 @@ private:
 	uint8_t m_CountryClaim = 0; // 0 = Unowned
 	uint8_t m_QueuedCountry = 0;
 	bool m_Claimed = false;
-	int m_ClaimBase{ 0 };
-	int m_ClaimProgress{ 80 }; // time in days to claim this province
+	float m_ClaimBase{ 0.f };
+	float m_ClaimProgress{ 80.f }; // time in days to claim this province
 	Resource* m_Resource = NULL; // the resource this tile yields
 	uint32_t m_ResourceYield = 0; // weekly resource yield
-
+	uint8_t m_Development = 0; // should range from like 0 - 5 maybe. Each level grants ~15% greater yield
 
 	// increase population by this formula
 	// where p = current population; t = terrain type

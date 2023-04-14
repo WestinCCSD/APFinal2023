@@ -126,13 +126,13 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)bin\sdlmixer\include;$(SolutionDir)include\;$(SolutionDir)bin\sdlttf\include;$(SolutionDir)bin\sdlimg\include;$(SolutionDir)bin\sdl2\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)bin\sdlmixer\include;$(SolutionDir)include\;$(SolutionDir)bin\sdlttf\include;$(SolutionDir)bin\sdlimage\include;$(SolutionDir)bin\sdl2\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)bin\sdlmixer\lib\x86;$(SolutionDir)bin\sdlttf\lib\x86\;$(SolutionDir)bin\sdlimg\lib\x86;$(SolutionDir)bin\sdl2\lib\x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)bin\sdlmixer\lib\x86;$(SolutionDir)bin\sdlttf\lib\x86\;$(SolutionDir)bin\sdlimage\lib\x86;$(SolutionDir)bin\sdl2\lib\x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>SDL2.lib;SDL2main.lib;SDL2_image.lib;SDL2_ttf.lib;SDL2_mixer.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
@@ -144,7 +144,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)bin\sdlmixer\include;$(SolutionDir)include\;$(SolutionDir)bin\sdlttf\include;$(SolutionDir)bin\sdlimg\include;$(SolutionDir)bin\sdl2\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)bin\sdlmixer\include;$(SolutionDir)include\;$(SolutionDir)bin\sdlttf\include;$(SolutionDir)bin\sdlimage\include;$(SolutionDir)bin\sdl2\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
@@ -152,7 +152,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)bin\sdlmixer\lib\x86;$(SolutionDir)bin\sdlttf\lib\x86\;$(SolutionDir)bin\sdlimg\lib\x86;$(SolutionDir)bin\sdl2\lib\x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)bin\sdlmixer\lib\x86;$(SolutionDir)bin\sdlttf\lib\x86\;$(SolutionDir)bin\sdlimage\lib\x86;$(SolutionDir)bin\sdl2\lib\x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>SDL2.lib;SDL2main.lib;SDL2_image.lib;SDL2_ttf.lib;SDL2_mixer.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
