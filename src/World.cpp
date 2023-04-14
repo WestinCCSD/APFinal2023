@@ -131,7 +131,10 @@ void World::Pause()
 
 void World::dayTick()
 {
-	
+	for (auto& object : m_Tilemap)
+	{
+		object.dayTick();
+	}
 }
 
 void World::weekTick()

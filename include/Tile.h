@@ -62,6 +62,7 @@ public:
 		calculateYield();
 
 		m_ClaimProgress *= (m_TerrainType + 1);
+		m_ClaimBase = m_ClaimProgress;
 
 	}
 
@@ -81,7 +82,13 @@ public:
 		SDLCall(SDL_SetTextureColorMod(m_TileTexture, 255, 255, 255));
 		SDLCall(SDL_SetTextureAlphaMod(m_TileTexture, 255));
 	}
-
+	void Handle(float) override
+	{
+		if (m_QueuedCountry != 0 && m_QueuedCountry != m_Country)
+		{
+			changeOwner(m_QueuedCountry);
+		}
+	}
 
 	int distanceTo(int px, int py)
 	{
@@ -117,6 +124,10 @@ public:
 			Clicked();
 	}
 
+	void queueChangeOwner(uint8_t p_Country)
+	{
+		m_QueuedCountry = p_Country;
+	}
 	void changeOwner(uint8_t p_Country)
 	{
 		{
@@ -141,7 +152,9 @@ public:
 	void createClaim(uint8_t p_Country)
 	{
 		m_CountryClaim = p_Country;
+		m_Claimed = true;
 	}
+	bool isClaimed() { return m_Claimed; }
 
 	static void setMultLength(uint16_t p_MultLength)
 	{
@@ -218,22 +231,28 @@ public:
 
 	uint32_t getYield() { return m_ResourceYield; }
 
+	void dayTick()
+	{
+		if (m_CountryClaim != 0 && m_CountryClaim != m_Country)
+		{
+			m_ClaimProgress--;
+			if (m_ClaimProgress == 0)
+			{
+				queueChangeOwner(m_CountryClaim);
+			}
+		}
+	}
+
 	// functions similar to handle,
 	// however this is only called during world updates
 	// (like 1 turn in hoi4 or civ5)
 	void Tick()
 	{
-		if (m_CountryClaim != 0)
-		{
-			m_ClaimProgress--;
-			if (m_ClaimProgress > 0)
-			{
-				changeOwner(m_CountryClaim);
-			}
-		}
 		calculateYield();
 		calculateNeeds();
 	}
+
+	float getClaimProgress() { return (float(m_ClaimProgress) / float(m_ClaimBase)); }
 
 	bool isHungry() { return m_Hungry; }
 	int getPopulation() { return m_Population; }
@@ -253,7 +272,6 @@ private:
 	int m_ID; // special id for this tile bc pointer checking is ineffective
 	uint16_t m_Index; // used for locating this tile in a vector/deque
 
-	int m_ClaimProgress{ 80 }; // time in days to claim this province
 
 	static SDL_Texture* m_TileTexture;
 	static uint16_t m_MultLength;
@@ -270,6 +288,10 @@ private:
 	TerrainType m_TerrainType = TerrainType::Flat;
 	uint8_t m_Country = 0; // 0 = Unowned
 	uint8_t m_CountryClaim = 0; // 0 = Unowned
+	uint8_t m_QueuedCountry = 0;
+	bool m_Claimed = false;
+	int m_ClaimBase{ 0 };
+	int m_ClaimProgress{ 80 }; // time in days to claim this province
 	Resource* m_Resource = NULL; // the resource this tile yields
 	uint32_t m_ResourceYield = 0; // weekly resource yield
 
@@ -281,7 +303,7 @@ private:
 	// ------------------
 	//			t
 	// we use current population to create a sort of population ramp
-	void increasePopulation()
+	void increasePopulation(float p_Modifier)
 	{
 		const int base = 5;
 		float percent = (rng.randFloat() * 0.05) + 0.01f; // random number between 0.01 ~ 0.05
@@ -294,7 +316,7 @@ private:
 		}
 		int increment = floor(base + ( (double(percent) + double(bonus)) * m_Population));
 		increment /= int(m_TerrainType) + 2; 
-		m_Population += increment;
+		m_Population += (increment * p_Modifier);
 
 	}
 	void decreasePopulation(int p_Deficit)
@@ -328,8 +350,8 @@ private:
 
 		if (food >= pop)
 		{
-			// enough food :D (likely there's surplus
-			increasePopulation();
+			// enough food :D (likely there's surplus)
+			increasePopulation(1.f);
 			m_Hungry = false;
 
 			if (m_Resource->m_Category == ResourceCategory::Food && country.getCountryTag() != 0)
@@ -337,7 +359,6 @@ private:
 				auto stockpile = country.getFoodStockpile();
 				uint32_t surplus = food - pop;
 				country.setFoodStockpile(stockpile + surplus);
-
 			}
 
 		}
@@ -352,7 +373,7 @@ private:
 			{
 				// there's enough food in stockpile :D
 				country.setFoodStockpile(stockpile - deficit);
-				increasePopulation();
+				increasePopulation(0.5f);
 				m_Hungry = false;
 			}
 			else

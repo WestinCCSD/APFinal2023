@@ -12,7 +12,6 @@ int main(int argc, char** args) {
 	game.linkObject(&world);
 	game.linkObject(&player);
 
-
 	while (game.isRunning())
 	{
 		game.renderClear();

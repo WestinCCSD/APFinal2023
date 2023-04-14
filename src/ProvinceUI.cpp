@@ -11,6 +11,7 @@ UITypes::Label* ProvinceUI::m_YieldLabel = NULL;
 UITypes::Label* ProvinceUI::m_YieldName = NULL;
 UITypes::Label* ProvinceUI::m_TileNameLabel = NULL;	
 ClaimButton<ProvinceUI>* ProvinceUI::m_ClaimButton = NULL;
+UITypes::ProgressBar* ProvinceUI::m_ClaimProgress = NULL;
 Tooltip* ProvinceUI::m_Tooltip = NULL;
 																	
 ProvinceUI::ProvinceUI()											
@@ -41,6 +42,9 @@ ProvinceUI::ProvinceUI()
 
 	m_ClaimButton = new ClaimButton<ProvinceUI>((*this));
 	m_ClaimButton->init(314, y + 101, 60, 30, "assets/art/claimbutton.png", {}, NULL);
+	m_ClaimProgress = new UITypes::ProgressBar();
+	m_ClaimProgress->init(314, y + 110, 48, 12, "assets/art/progressbartop.png", {}, "assets/art/progressbarbottom.png");
+	m_ClaimProgress->Hide();
 
 
 	m_Texture = Renderer::loadTexture("assets/art/povinceUI.png");	
@@ -72,13 +76,14 @@ void ProvinceUI::ProvinceUIHandle()
 
 	if (m_ProvinceUI->m_Visible)
 	{
-		m_ProvinceUI->Render();
-		m_PopulationLabel->Render();
-		m_TileNameLabel->Render();
-		m_ClaimButton->Render();
-		m_YieldLabel->Render();
-		m_YieldName->Render();
-		m_PopulationText->Render();
+		m_ProvinceUI->     UIRender();
+		m_PopulationLabel->UIRender();
+		m_TileNameLabel->  UIRender();
+		m_ClaimButton->    UIRender();
+		m_YieldLabel->     UIRender();
+		m_YieldName->      UIRender();
+		m_PopulationText-> UIRender();
+		m_ClaimProgress->  UIRender();
 	}
 	UpdateInfo();
 }
@@ -140,6 +145,21 @@ void ProvinceUI::UpdateInfo()
 
 		}
 
+		// progress bar & claim button
+		{
+			if (Tile::getSelectedTile()->isClaimed())
+			{
+				m_ClaimButton->Hide();
+				m_ClaimProgress->Show();
+				m_ClaimProgress->setProgress(Tile::getSelectedTile()->getClaimProgress());
+			}
+			else
+			{
+				m_ClaimButton->Show();
+				m_ClaimProgress->Hide();
+			}
+		}
+
 	}
 	else
 	{
@@ -158,7 +178,7 @@ void ProvinceUI::claimClicked()
 {
 	if (Tile::getSelectedTile() != NULL)
 	{
-		Tile::getSelectedTile()->changeOwner(1);
+		Tile::getSelectedTile()->createClaim(1);
 	}
 }
 

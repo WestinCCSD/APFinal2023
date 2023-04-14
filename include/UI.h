@@ -82,8 +82,11 @@ public:
 	// functions specifically for this ui element
 	virtual void UIRender()
 	{
-		SDL_Rect rect = TORECT;
-		SDLCall(SDL_RenderCopy(Renderer::getRenderer(), m_Texture, NULL, &rect));
+		if (m_Visible)
+		{
+			SDL_Rect rect = TORECT;
+			SDLCall(SDL_RenderCopy(Renderer::getRenderer(), m_Texture, NULL, &rect));
+		}
 	}
 
 	void Show() { m_Visible = true; }
@@ -414,5 +417,70 @@ namespace UITypes
 
 
 	};
+
+	class ProgressBar : public UI
+	{
+	public:
+		virtual void init(int px, int py, int pw, int ph, const char* p_TexturePath, const std::deque<UI*> p_Children, const void* p_BottomTexturePath) override
+		{
+			baseInit(px, py, pw, ph, {});
+
+			m_BaseWidth = pw;
+			m_BaseHeight = ph;
+
+			m_Texture = Renderer::loadTexture(p_TexturePath);
+			const char* path = (const char*)(p_BottomTexturePath);
+			m_BottomTexture = Renderer::loadTexture(path);
+
+		}
+
+		void setTextureBaseSize(int bw, int bh)
+		{
+			m_BaseWidth = bw;
+			m_BaseHeight = bh;
+		}
+		void setProgress(float p_Progress) { m_Progress = p_Progress; m_Progress = clamp<float>(0.f, 1.f, m_Progress); }
+		float getProgress() { return m_Progress; }
+
+		void UIRender() override
+		{
+			if (m_Visible)
+			{
+				SDL_Rect toprectsrc =
+				{
+					0.f,
+					0.f,
+					ceil(float(m_BaseWidth) * m_Progress),
+					m_BaseHeight
+				};
+				SDL_Rect toprectdst =
+				{
+					x,
+					y,
+					ceil(float(w) * m_Progress),
+					h
+				};
+
+				std::cout << float(w) * m_Progress << "\n";
+
+				SDL_Rect rect = TORECT;
+
+				SDLCall(SDL_RenderCopy(Renderer::getRenderer(), m_BottomTexture, NULL, &rect));
+				SDLCall(SDL_RenderCopy(Renderer::getRenderer(), m_Texture, &toprectsrc, &toprectdst));
+			}
+
+		}
+
+
+
+	protected:
+		SDL_Texture* m_BottomTexture;
+		float m_Progress = 0.f;
+
+		int m_BaseWidth;
+		int m_BaseHeight;
+
+	};
+
 
 }

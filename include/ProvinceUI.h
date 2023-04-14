@@ -51,6 +51,7 @@ private:
 	static UITypes::Label* m_YieldName;
 	static UITypes::Label* m_TileNameLabel;
 	static ClaimButton<ProvinceUI>* m_ClaimButton;
+	static UITypes::ProgressBar* m_ClaimProgress;
 	static Tooltip* m_Tooltip;
 
 };
