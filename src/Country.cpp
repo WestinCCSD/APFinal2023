@@ -2,6 +2,9 @@
 #include "Country.h"
 #include "Tile.h"
 
+// define countries :D
+Countries* Countries::m_Countries = NULL;
+std::vector<Country> Countries::m_Data;
 Mix_Chunk* Country::m_GainedProvince = Mix_LoadWAV("assets/sfx/province_core.wav");
 
 void Country::initStockpile()
@@ -14,11 +17,6 @@ void Country::initStockpile()
 	}
 
 }
-
-
-// define countries :D
-Countries* Countries::m_Countries = NULL;
-std::vector<Country> Countries::m_Data;
 
 Countries::Countries() 
 {
@@ -103,7 +101,8 @@ void Country::addTile(void* p_Tile)
 	Tile* tile = (Tile*)(p_Tile);
 	tile->setCIndex(m_Tiles.size());
 	m_Tiles.push_back(p_Tile);
-	Mix_PlayChannel(-1, m_GainedProvince, 0);
+	if (m_CountryName == "Player")
+		Mix_PlayChannel(-1, m_GainedProvince, 0);
 }
 
 void Country::removeTile(void* p_Tile)
@@ -117,4 +116,12 @@ void Country::removeTile(void* p_Tile)
 	}
 
 	m_Tiles.erase(m_Tiles.begin() + tile->getCIndex());
+}
+
+bool Country::canDevelop(void* p_Tile)
+{
+	Tile* tile = (Tile*)(p_Tile);
+
+	return (m_Money >= (tile->getTerrain() + 1) * 10);
+
 }

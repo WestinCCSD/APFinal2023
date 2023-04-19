@@ -53,7 +53,9 @@ public:
 		w = l;
 		h = l;
 		Tile::setTexture(Renderer::loadTexture("assets/art/tileblank.png"));
+		Tile::m_BuildingTexture = Renderer::loadTexture("assets/art/tilebuilding.png");
 		SDLVERIFY(m_TileTexture);
+		SDLVERIFY(m_BuildingTexture);
 
 		const auto& country = Countries::getCountry(m_Country);
 		setColor(country.getBorderColor());
@@ -157,6 +159,10 @@ public:
 		m_Claimed = true;
 	}
 	bool isClaimed() { return m_Claimed; }
+	bool isOwned() { return (m_Country != 0); }
+	uint8_t getOwner() { return m_Country; }
+	uint32_t getYield() { return (m_ResourceYield * (m_Development * 2)); }
+	TerrainType getTerrain() { return m_TerrainType; }
 
 	static void setMultLength(uint16_t p_MultLength)
 	{
@@ -231,7 +237,6 @@ public:
 		return gameStats;
 	}
 
-	uint32_t getYield() { return m_ResourceYield; }
 
 	void dayTick()
 	{
@@ -245,6 +250,17 @@ public:
 				claimedcountry.removeClaim();
 			}
 		}
+		if (m_Developing)
+		{
+			m_DevelopProgress--;
+			if (m_DevelopProgress <= 0)
+			{
+				m_Development++;
+				m_Developing = false;
+				std::cout << int(m_Development) << "\n";
+			}
+			std::cout << m_DevelopProgress << "\n";
+		}
 	}
 
 	// functions similar to handle,
@@ -257,12 +273,28 @@ public:
 	}
 
 	float getClaimProgress() { return (float(m_ClaimBase - m_ClaimProgress) / float(m_ClaimBase)); }
+	float getDevelopProgress() 
+	{
+		return float(float(m_DevelopBase) / float(m_DevelopProgress));
+	}
 
 	bool isHungry() { return m_Hungry; }
 	int getPopulation() { return m_Population; }
 	const Resource& getResource() { return (*m_Resource); }
 	uint16_t getCIndex() { return m_Index; } // get country index
-	
+	uint8_t getCountry() { return m_Country; }
+
+	bool isDeveloping() { return m_Developing; }
+	void develop()
+	{
+		if (!m_Developing)
+		{
+			m_Developing = true;
+			m_DevelopBase = (m_DevelopBase * (m_TerrainType + 1) * (m_Development + 1));
+			m_DevelopProgress = m_DevelopBase;
+		}
+	}
+
 	void setCIndex(uint16_t p_Index) { m_Index = p_Index; }
 	static void setRadius(uint16_t p_Radius) { m_Radius = p_Radius; }
 	static uint16_t getRadius() { return m_Radius; }
@@ -278,6 +310,7 @@ private:
 
 
 	static SDL_Texture* m_TileTexture;
+	static SDL_Texture* m_BuildingTexture;
 	static uint16_t m_MultLength;
 	static uint16_t m_Radius; // pixel radius of each tile
 	static Tile* m_SelectedTile;
@@ -296,6 +329,9 @@ private:
 	bool m_Claimed = false;
 	float m_ClaimBase{ 0.f };
 	float m_ClaimProgress{ 80.f }; // time in days to claim this province
+	bool m_Developing{ false };
+	uint16_t m_DevelopBase{ 80 };
+	uint16_t m_DevelopProgress{ 0 };
 	Resource* m_Resource = NULL; // the resource this tile yields
 	uint32_t m_ResourceYield = 0; // weekly resource yield
 	uint8_t m_Development = 0; // should range from like 0 - 5 maybe. Each level grants ~15% greater yield
@@ -335,6 +371,7 @@ private:
 		}
 
 		m_ResourceYield = floor(m_Population * 0.08);
+		m_ResourceYield *= m_Development + 1;
 
 		m_ResourceYield = clamp<int>(0, 20000, m_ResourceYield);
 		m_ResourceYield /= m_TerrainType + 2;

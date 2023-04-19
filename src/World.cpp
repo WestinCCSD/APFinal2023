@@ -4,6 +4,7 @@
 // defining static vars here bc I'm very lazy and can't be bothered
 // to create an ENTIRE cpp file for tiles
 SDL_Texture* Tile::m_TileTexture = NULL;
+SDL_Texture* Tile::m_BuildingTexture = NULL;
 uint16_t Tile::m_MultLength = 0; 
 uint16_t Tile::m_Radius = 0;
 Tile* Tile::m_SelectedTile = NULL;

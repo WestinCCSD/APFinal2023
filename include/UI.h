@@ -136,8 +136,16 @@ namespace UITypes
 				{
 					SDL_Point point{ lx, ly };
 					SDL_Rect rect = TORECT;
-					m_mouseDown = true;
-					return SDL_PointInRect(&point, &rect);
+					
+					if (SDL_PointInRect(&point, &rect))
+					{
+						m_mouseDown = true;
+						return true;
+					}
+					else
+					{
+						return false;
+					}
 				}
 			}
 			else
@@ -151,9 +159,12 @@ namespace UITypes
 		// (though this is not reccomended)
 		void UIHandle(float) override
 		{
-			if (clickCheck())
+			if (m_Visible)
 			{
-				onClick();
+				if (clickCheck())
+				{
+					onClick();
+				}
 			}
 		}
 
@@ -460,8 +471,6 @@ namespace UITypes
 					ceil(float(w) * m_Progress),
 					h
 				};
-
-				std::cout << float(w) * m_Progress << "\n";
 
 				SDL_Rect rect = TORECT;
 

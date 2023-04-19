@@ -3,21 +3,20 @@
 #pragma once
 
 template <class T>
-class ClaimButton : public UITypes::Button
+class ComponentButton : public UITypes::Button
 {
 public:
-	ClaimButton(T& p_Parent)
+	ComponentButton(T& p_Parent)
 		: m_Parent(p_Parent)
 	{}
 
 	virtual void onClick() override
 	{
-		m_Parent.claimClicked();
+		m_Parent.onClick(this);
 	}
 
 private:
 	T& m_Parent;
-
 
 };
 
@@ -32,7 +31,7 @@ public:
 	void Handle(float) override;
 	
 
-	void claimClicked();
+	void onClick(void*);
 
 	static SDL_Rect getRect();
 	static bool isVisible() { return m_ProvinceUI->m_Visible; }
@@ -50,8 +49,9 @@ private:
 	static UITypes::Label* m_YieldLabel;
 	static UITypes::Label* m_YieldName;
 	static UITypes::Label* m_TileNameLabel;
-	static ClaimButton<ProvinceUI>* m_ClaimButton;
+	static ComponentButton<ProvinceUI>* m_ClaimButton;
 	static UITypes::ProgressBar* m_ClaimProgress;
+	static ComponentButton<ProvinceUI>* m_DevelopButton;
 	static Tooltip* m_Tooltip;
 
 };

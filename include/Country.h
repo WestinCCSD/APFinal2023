@@ -56,6 +56,9 @@ public:
 	float getPopulationBonus() { return m_PopulationBonus; }
 	int getMoney() { return m_Money; }
 
+	// checks if this country can develop the given tile, if yes, begins returns so and removes correct amount of resources
+	bool canDevelop(void*);
+
 	float m_PopulationBonus;
 
 	void calculateYield();

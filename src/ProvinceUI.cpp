@@ -10,8 +10,9 @@ UITypes::Label* ProvinceUI::m_PopulationText = NULL;
 UITypes::Label* ProvinceUI::m_YieldLabel = NULL;
 UITypes::Label* ProvinceUI::m_YieldName = NULL;
 UITypes::Label* ProvinceUI::m_TileNameLabel = NULL;	
-ClaimButton<ProvinceUI>* ProvinceUI::m_ClaimButton = NULL;
+ComponentButton<ProvinceUI>* ProvinceUI::m_ClaimButton = NULL;
 UITypes::ProgressBar* ProvinceUI::m_ClaimProgress = NULL;
+ComponentButton<ProvinceUI>* ProvinceUI::m_DevelopButton = NULL;
 Tooltip* ProvinceUI::m_Tooltip = NULL;
 																	
 ProvinceUI::ProvinceUI()											
@@ -40,12 +41,14 @@ ProvinceUI::ProvinceUI()
 	m_TileNameLabel->init(0, y + 29, 0, 0, OFFICIALFONT, {}, "Tile ");
 	m_TileNameLabel->setCenter(245, -1);
 
-	m_ClaimButton = new ClaimButton<ProvinceUI>((*this));
+	m_ClaimButton = new ComponentButton<ProvinceUI>((*this));
 	m_ClaimButton->init(314, y + 101, 60, 30, "assets/art/claimbutton.png", {}, NULL);
 	m_ClaimProgress = new UITypes::ProgressBar();
 	m_ClaimProgress->init(314, y + 110, 48, 12, "assets/art/progressbartop.png", {}, "assets/art/progressbarbottom.png");
 	m_ClaimProgress->Hide();
 
+	m_DevelopButton = new ComponentButton<ProvinceUI>((*this));
+	m_DevelopButton->init(314, y + 101, 60, 30, "assets/art/developbutton.png", {}, NULL);
 
 	m_Texture = Renderer::loadTexture("assets/art/povinceUI.png");	
 	SDLVERIFY(m_Texture);											
@@ -84,6 +87,7 @@ void ProvinceUI::ProvinceUIHandle()
 		m_YieldName->      UIRender();
 		m_PopulationText-> UIRender();
 		m_ClaimProgress->  UIRender();
+		m_DevelopButton->  UIRender();
 	}
 	UpdateInfo();
 }
@@ -147,16 +151,41 @@ void ProvinceUI::UpdateInfo()
 
 		// progress bar & claim button
 		{
-			if (Tile::getSelectedTile()->isClaimed())
+			bool claim = Tile::getSelectedTile()->isClaimed();
+			bool owned = Tile::getSelectedTile()->isOwned();
+			bool developing = Tile::getSelectedTile()->isDeveloping();
+			if (claim)
 			{
+				m_DevelopButton->Hide();
 				m_ClaimButton->Hide();
 				m_ClaimProgress->Show();
 				m_ClaimProgress->setProgress(Tile::getSelectedTile()->getClaimProgress());
+
 			}
 			else
 			{
+				m_DevelopButton->Hide();
 				m_ClaimButton->Show();
 				m_ClaimProgress->Hide();
+			}
+			if (owned)
+			{
+				m_ClaimButton->Hide();
+
+				if (Tile::getSelectedTile()->getOwner() == 1) // tile belongs to player and isn't being developed
+				{
+					if (developing)
+					{
+						m_ClaimProgress->Show();
+						m_ClaimProgress->setProgress(Tile::getSelectedTile()->getDevelopProgress());
+					}
+					else
+					{
+						m_ClaimProgress->Hide();
+						m_DevelopButton->Show();
+					}
+				}
+
 			}
 		}
 
@@ -171,14 +200,26 @@ void ProvinceUI::UpdateInfo()
 
 void ProvinceUI::Handle(float)
 {
-	m_ClaimButton->Handle(0.f);
+	m_DevelopButton->UIHandle(0.f);
+	m_ClaimButton->UIHandle(0.f);
 }
 
-void ProvinceUI::claimClicked()
+void ProvinceUI::onClick(void* p_Button)
 {
-	if (Tile::getSelectedTile() != NULL)
+	if (p_Button == m_ClaimButton)
 	{
-		Tile::getSelectedTile()->createClaim(1);
+		if (Tile::getSelectedTile() != NULL)
+		{
+			Tile::getSelectedTile()->createClaim(1);
+		}
+	}
+	if (p_Button == m_DevelopButton)
+	{
+		Tile* tile = Tile::getSelectedTile();
+		auto& country = Countries::getCountry(tile->getCountry());
+		// todo: check to make sure this tile can develop
+		tile->develop();
+		std::cout << "Tile development started!\n";
 	}
 }
 
