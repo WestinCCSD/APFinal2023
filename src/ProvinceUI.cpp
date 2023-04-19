@@ -14,7 +14,9 @@ ComponentButton<ProvinceUI>* ProvinceUI::m_ClaimButton = NULL;
 UITypes::ProgressBar* ProvinceUI::m_ClaimProgress = NULL;
 ComponentButton<ProvinceUI>* ProvinceUI::m_DevelopButton = NULL;
 Tooltip* ProvinceUI::m_Tooltip = NULL;
-																	
+
+RNG ProvinceUI::rng{};
+
 ProvinceUI::ProvinceUI()											
 {			
 	int wh=0;
@@ -52,6 +54,8 @@ ProvinceUI::ProvinceUI()
 
 	m_Texture = Renderer::loadTexture("assets/art/povinceUI.png");	
 	SDLVERIFY(m_Texture);											
+
+	m_ProvinceUI->rng.Randomize();
 
 }																	
 
@@ -210,7 +214,10 @@ void ProvinceUI::onClick(void* p_Button)
 	{
 		if (Tile::getSelectedTile() != NULL)
 		{
-			Tile::getSelectedTile()->createClaim(1);
+			int rand = rng.Roll(0.5f);
+			if (!Tile::getSelectedTile()->isClaimed()) // the claim button is unavailable if the tile is being claimed anyway, so this is just a precaution
+				Tile::getSelectedTile()->createClaim(1 + rand);
+			// claim this tile on the behalf of the player
 		}
 	}
 	if (p_Button == m_DevelopButton)
@@ -219,7 +226,6 @@ void ProvinceUI::onClick(void* p_Button)
 		auto& country = Countries::getCountry(tile->getCountry());
 		// todo: check to make sure this tile can develop
 		tile->develop();
-		std::cout << "Tile development started!\n";
 	}
 }
 

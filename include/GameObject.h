@@ -1,4 +1,5 @@
 #pragma once
+#include "RNG.h"
 #include "Debug.h"
 #include "Renderer.h"
 #include "Camera.h"
@@ -53,4 +54,7 @@ protected:
 	int x, y, w, h;
 	SDL_Texture* m_Texture;
 	uint8_t m_Index;
+
+	static RNG m_RNG;
+
 };

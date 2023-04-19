@@ -54,4 +54,6 @@ private:
 	static ComponentButton<ProvinceUI>* m_DevelopButton;
 	static Tooltip* m_Tooltip;
 
+	static RNG rng;
+
 };
