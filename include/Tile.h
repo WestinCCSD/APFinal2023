@@ -257,9 +257,7 @@ public:
 			{
 				m_Development++;
 				m_Developing = false;
-				std::cout << int(m_Development) << "\n";
 			}
-			std::cout << m_DevelopProgress << "\n";
 		}
 	}
 
@@ -275,7 +273,7 @@ public:
 	float getClaimProgress() { return (float(m_ClaimBase - m_ClaimProgress) / float(m_ClaimBase)); }
 	float getDevelopProgress() 
 	{
-		return float(float(m_DevelopBase) / float(m_DevelopProgress));
+		return (float(m_DevelopProgress) / float(m_DevelopBase));
 	}
 
 	bool isHungry() { return m_Hungry; }

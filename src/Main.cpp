@@ -9,11 +9,6 @@ int main(int argc, char** args) {
 	const Countries& countries = Countries::get();
 	World world(50, 50, 70);
 	Player player;
-	countries.addCountry(
-		{ { 200, 50, 50, 255 }, 
-		"Red Country",
-		0, 
-		1.f}, true, NULL);
 	game.linkObject(&world);
 	game.linkObject(&player);
 

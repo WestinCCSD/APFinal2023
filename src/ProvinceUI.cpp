@@ -214,9 +214,8 @@ void ProvinceUI::onClick(void* p_Button)
 	{
 		if (Tile::getSelectedTile() != NULL)
 		{
-			int rand = rng.Roll(0.5f);
 			if (!Tile::getSelectedTile()->isClaimed()) // the claim button is unavailable if the tile is being claimed anyway, so this is just a precaution
-				Tile::getSelectedTile()->createClaim(1 + rand);
+				Tile::getSelectedTile()->createClaim(1);
 			// claim this tile on the behalf of the player
 		}
 	}
